@@ -1,3 +1,4 @@
+import asyncio
 from typing import List, Dict,Optional
 import aiohttp, json
 
@@ -43,3 +44,22 @@ class LolHttpsClient:
 
     async def match_v5_matchs(self, match_id: str) -> Dict[str, str]:
         return await self.request_2(f"/lol/match/v5/matches/{match_id}")
+
+    async def champion_v4_free_champion(self) -> Dict[str, str]:
+        return await self.request_1("/lol/platform/v3/champion-rotations")
+
+    async def champion_mastery_v4(self, summonerID: str) -> Dict[str, str]:
+        return await self.request_1(f"/lol/champion-mastery/v4/champion-masteries/by-summoner/{summonerID}")
+
+    async def summoner_match_info(self, info: Dict[str, str]) -> Dict[str, str]:
+        _list = [self.gamemode(info)]
+        for i in info["participants"]:
+            _list.append(self.summoner_match_info_2(i))
+        return await asyncio.gather(*_list)
+
+    async def summoner_match_info_2(self, info: str) -> Dict[str, str]:
+        return { "kills" : info["kills"], "assists" : info["assists"],
+            "deaths" : info["deaths"], "champLevel" : info["champLevel"]}
+
+    async def gamemode(self, info):
+        return {"gamemode" : info["gameMode"], "gameStartTimeStamp" : info["gameStartTimestamp"]}
