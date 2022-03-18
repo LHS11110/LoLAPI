@@ -1,7 +1,5 @@
-from traceback import print_tb
 from typing import List, Dict, Optional
 from fastapi import FastAPI
-from numpy import append
 from LoLHttpsClient import LolHttpsClient
 import uvicorn, asyncio, pymysql
 app = FastAPI()
