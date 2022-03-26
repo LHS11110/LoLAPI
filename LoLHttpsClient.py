@@ -2,8 +2,8 @@ import asyncio
 from typing import List, Dict,Optional
 import aiohttp, json
 
-with open("riot_header.json") as json_file:
-    riot_headers = json.load(json_file)
+with open("riot.json") as json_file:
+    riot_headers = (json.load(json_file))[0]
 
 class LolHttpsClient:
     URL_1 = "https://kr.api.riotgames.com"
@@ -53,13 +53,18 @@ class LolHttpsClient:
 
     async def summoner_match_info(self, info: Dict[str, str]) -> Dict[str, str]:
         _list = [self.gamemode(info)]
-        for i in info["participants"]:
-            _list.append(self.summoner_match_info_2(i))
+        for player in info["participants"]:
+            _list.append(self.summoner_match_info_Parsing(player))
         return await asyncio.gather(*_list)
 
-    async def summoner_match_info_2(self, info: str) -> Dict[str, str]:
+    async def summoner_match_info_Parsing(self, info: str) -> Dict[str, str]:
         return { "kills" : info["kills"], "assists" : info["assists"],
-            "deaths" : info["deaths"], "champLevel" : info["champLevel"]}
+            "deaths" : info["deaths"], "championName" : info["championName"], "champLevel" : info["champLevel"]
+            , "teamPosition" : info["teamPosition"], "summonerName" : info["summonerName"], "summonerLevel" : info["summonerLevel"]
+            , "win" : info["win"], "goldEarned" : info["goldEarned"], "goldSpent" : info["goldSpent"]
+            , "items" : [info["item0"], info["item1"], info["item2"], info["item3"], info["item4"], info["item5"], info["item6"]]
+            , "teamId" : info["teamId"]}
 
     async def gamemode(self, info):
-        return {"gamemode" : info["gameMode"], "gameStartTimeStamp" : info["gameStartTimestamp"]}
+        return {"gamemode" : info["gameMode"], "gameStartTimeStamp" : info["gameStartTimestamp"]
+                , "gameDuration" : info["gameDuration"], "queueId" : info["queueId"]}
