@@ -1,15 +1,13 @@
 from typing import List, Dict, Optional
 from fastapi import FastAPI
 from LoLHttpsClient import LolHttpsClient
-from pydantic import BaseModel
 from DB import connectDB
-import uvicorn, asyncio
+import uvicorn, asyncio, POST_class
 app = FastAPI()
 lol = LolHttpsClient()
 db = connectDB()
-
-class matchList(BaseModel):
-    matchlist: List[str]
+loop = asyncio.get_event_loop()
+loop.run_until_complete(db.setting())
 
 @app.get("/")
 async def read_root():
@@ -24,7 +22,7 @@ async def summonerinfo(summonerName: str) -> Dict[str, str]:
     return await lol.summoner_v4_by_name(summonerName)
 
 @app.post("/match")
-async def summoner_match(matchlist: matchList) -> List[Dict[str, str]]:
+async def summoner_match(matchlist: POST_class.matchList) -> List[Dict[str, str]]:
     match_list = []
     for match_id in dict(matchlist)["matchlist"]:
         match_list.append(lol.match_v5_matchs(match_id))
